@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { ArrowLeft, Hash, Banknote, Smartphone, Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { usePakVault, type Deposit } from '@/components/pakvault-provider'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { toast } from "sonner";
+import { ArrowLeft, Hash, Banknote, Smartphone, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { usePakVault, type Deposit } from "@/components/pakvault-provider";
+import { cn } from "@/lib/utils";
 
 const METHODS: {
-  id: Deposit['method']
-  account: string
-  hint: string
+  id: Deposit["method"];
+  account: string;
+  hint: string;
 }[] = [
-  { id: 'EasyPaisa', account: '0345-1234567', hint: 'PakVault Wallet' },
-  { id: 'JazzCash', account: '0300-7654321', hint: 'PakVault Merchant' },
-]
+  { id: "EasyPaisa", account: "03280186930", hint: "PakVault Wallet" },
+  { id: "JazzCash", account: "03280186930", hint: "PakVault Merchant" },
+];
 
 export function DepositScreen({ onBack }: { onBack: () => void }) {
-  const { submitDeposit } = usePakVault()
-  const [method, setMethod] = useState<Deposit['method']>('EasyPaisa')
-  const [trxId, setTrxId] = useState('')
-  const [amount, setAmount] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const { submitDeposit } = usePakVault();
+  const [method, setMethod] = useState<Deposit["method"]>("EasyPaisa");
+  const [trxId, setTrxId] = useState("");
+  const [amount, setAmount] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const selected = METHODS.find((m) => m.id === method)!
+  const selected = METHODS.find((m) => m.id === method)!;
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const numeric = Number(amount)
+    e.preventDefault();
+    const numeric = Number(amount);
     if (!trxId.trim()) {
-      toast.error('Please enter the Transaction ID.')
-      return
+      toast.error("Please enter the Transaction ID.");
+      return;
     }
     if (!numeric || numeric <= 0) {
-      toast.error('Please enter a valid amount.')
-      return
+      toast.error("Please enter a valid amount.");
+      return;
     }
-    setSubmitting(true)
-    submitDeposit(method, trxId, numeric)
-    setSubmitting(false)
-    setTrxId('')
-    setAmount('')
-    toast.success('Payment request submitted! We will verify it shortly.')
-    onBack()
+    setSubmitting(true);
+    submitDeposit(method, trxId, numeric);
+    setSubmitting(false);
+    setTrxId("");
+    setAmount("");
+    toast.success("Payment request submitted! We will verify it shortly.");
+    onBack();
   }
 
   return (
@@ -76,18 +76,18 @@ export function DepositScreen({ onBack }: { onBack: () => void }) {
               type="button"
               onClick={() => setMethod(m.id)}
               className={cn(
-                'flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-colors',
+                "flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-colors",
                 method === m.id
-                  ? 'border-primary bg-accent'
-                  : 'border-border bg-card hover:bg-secondary',
+                  ? "border-primary bg-accent"
+                  : "border-border bg-card hover:bg-secondary",
               )}
             >
               <span
                 className={cn(
-                  'flex size-9 items-center justify-center rounded-lg',
+                  "flex size-9 items-center justify-center rounded-lg",
                   method === m.id
-                    ? 'bg-primary/20 text-primary'
-                    : 'bg-secondary text-muted-foreground',
+                    ? "bg-primary/20 text-primary"
+                    : "bg-secondary text-muted-foreground",
                 )}
               >
                 <Smartphone className="size-4" />
@@ -167,5 +167,5 @@ export function DepositScreen({ onBack }: { onBack: () => void }) {
         </p>
       </form>
     </div>
-  )
+  );
 }
