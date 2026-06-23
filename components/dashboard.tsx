@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Coins,
   UserPlus,
@@ -15,58 +15,115 @@ import {
   Sparkles,
   Lock,
   FolderLock,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   usePakVault,
   PAKVAULT_CONSTANTS,
   type Deposit,
-} from '@/components/pakvault-provider'
-import type { Screen } from '@/components/bottom-nav'
-import { cn } from '@/lib/utils'
+} from "@/components/pakvault-provider";
+import type { Screen } from "@/components/bottom-nav";
+import { cn } from "@/lib/utils";
 
 export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
-  const { user, logout, inviteFriend, disableAdsForADay } = usePakVault()
-  const [copied, setCopied] = useState(false)
+  const { user, logout, inviteFriend, disableAdsForADay } = usePakVault();
+  const [copied, setCopied] = useState(false);
+  const [appSettings, setAppSettings] = useState({
+    whatsapp: false,
+    facebook: false,
+    instagram: false,
+  })
+const toggleAppLock = (appName: string) => {
+  setAppSettings((prev) => ({ ...prev, [appName]: !prev[appName] }));
+  // alert is used here temporarily if toast is not imported properly, but we can stick to your setup
+};
 
-  if (!user) return null
+  if (!user) return null;
 
-  const adFree = user.adFreeUntil > Date.now()
+  const adFree = user.adFreeUntil > Date.now();
 
   function handleInvite() {
-    if (!user) return
-    const code = user.referralCode
-    const shareText = `Join me on PakVault and earn Digital Coins! Use my code ${code} to sign up.`
-    const earned = inviteFriend()
+    if (!user) return;
+    const code = user.referralCode;
+    const shareText = `Join me on PakVault and earn Digital Coins! Use my code ${code} to sign up.`;
+    const earned = inviteFriend();
     if (
-      typeof navigator !== 'undefined' &&
-      typeof navigator.share === 'function'
+      typeof navigator !== "undefined" &&
+      typeof navigator.share === "function"
     ) {
-      navigator.share({ title: 'PakVault', text: shareText }).catch(() => {})
+      navigator.share({ title: "PakVault", text: shareText }).catch(() => {});
     }
-    toast.success(`Invite sent! You earned ${earned} coins.`)
+    toast.success(`Invite sent! You earned ${earned} coins.`);
   }
 
   function handleCopy() {
-    if (!user) return
+    if (!user) return;
     navigator.clipboard?.writeText(user.referralCode).then(() => {
-      setCopied(true)
-      toast.success('Referral code copied')
-      setTimeout(() => setCopied(false), 1500)
-    })
+      setCopied(true);
+      toast.success("Referral code copied");
+      setTimeout(() => setCopied(false), 1500);
+    });
   }
 
   function handleDisableAds() {
-    const result = disableAdsForADay()
+    const result = disableAdsForADay();
     if (!result.ok) {
-      toast.error(result.error + ' Top up to get more coins.')
-      return
+      toast.error(result.error + " Top up to get more coins.");
+      return;
     }
-    toast.success('Ads disabled for 1 day. 1 coin spent.')
+    toast.success("Ads disabled for 1 day. 1 coin spent.");
   }
 
   return (
     <div className="flex flex-col gap-5 px-5 pb-6 pt-8">
+      {/* Social Apps Lock Section */}
+      <div className="mt-6 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <FolderLock className="w-6 h-6 text-blue-600" />
+          Social Apps Lock (For Ads)
+        </h2>
+
+        <div className="space-y-4">
+          {/* WhatsApp */}
+          <div className="flex items-center justify-between p-4 border rounded-md bg-gray-50">
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-lg">WhatsApp</span>
+            </div>
+            <Button
+              variant={appSettings.whatsapp ? "destructive" : "default"}
+              onClick={() => toggleAppLock("whatsapp")}
+            >
+              {appSettings.whatsapp ? "Locked (Ads Active)" : "Unlocked"}
+            </Button>
+          </div>
+
+          {/* Facebook */}
+          <div className="flex items-center justify-between p-4 border rounded-md bg-gray-50">
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-lg">Facebook</span>
+            </div>
+            <Button
+              variant={appSettings.facebook ? "destructive" : "default"}
+              onClick={() => toggleAppLock("facebook")}
+            >
+              {appSettings.facebook ? "Locked (Ads Active)" : "Unlocked"}
+            </Button>
+          </div>
+
+          {/* Instagram */}
+          <div className="flex items-center justify-between p-4 border rounded-md bg-gray-50">
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-lg">Instagram</span>
+            </div>
+            <Button
+              variant={appSettings.instagram ? "destructive" : "default"}
+              onClick={() => toggleAppLock("instagram")}
+            >
+              {appSettings.instagram ? "Locked (Ads Active)" : "Unlocked"}
+            </Button>
+          </div>
+        </div>
+      </div>
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
@@ -117,19 +174,19 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           icon={<ArrowDownToLine className="size-5" />}
           label="Deposit"
           sub="EasyPaisa / JazzCash"
-          onClick={() => onNavigate('deposit')}
+          onClick={() => onNavigate("deposit")}
         />
         <ActionTile
           icon={<Lock className="size-5" />}
           label="App Locker"
           sub="Protect your apps"
-          onClick={() => onNavigate('locker')}
+          onClick={() => onNavigate("locker")}
         />
         <ActionTile
           icon={<FolderLock className="size-5" />}
           label="My Vault"
           sub="Hide photos & videos"
-          onClick={() => onNavigate('vault')}
+          onClick={() => onNavigate("vault")}
         />
       </section>
 
@@ -154,11 +211,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             ) : (
               <Copy className="size-4" />
             )}
-            {copied ? 'Copied' : 'Copy'}
+            {copied ? "Copied" : "Copy"}
           </Button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          {user.invitesSent} friend{user.invitesSent === 1 ? '' : 's'} invited
+          {user.invitesSent} friend{user.invitesSent === 1 ? "" : "s"} invited
           so far
         </p>
       </section>
@@ -184,12 +241,12 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         <Button
           type="button"
           onClick={handleDisableAds}
-          variant={adFree ? 'secondary' : 'default'}
+          variant={adFree ? "secondary" : "default"}
           className="mt-4 h-11 w-full"
         >
           {adFree
-            ? 'Extend ad-free by 1 more day (1 coin)'
-            : 'Spend 1 Coin to Disable Ads for 1 Day'}
+            ? "Extend ad-free by 1 more day (1 coin)"
+            : "Spend 1 Coin to Disable Ads for 1 Day"}
         </Button>
       </section>
 
@@ -209,7 +266,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         )}
       </section>
     </div>
-  )
+  );
 }
 
 function ActionTile({
@@ -219,27 +276,27 @@ function ActionTile({
   onClick,
   accent,
 }: {
-  icon: React.ReactNode
-  label: string
-  sub: string
-  onClick: () => void
-  accent?: boolean
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+  onClick: () => void;
+  accent?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'flex flex-col items-start gap-3 rounded-2xl border border-border p-4 text-left transition-colors',
+        "flex flex-col items-start gap-3 rounded-2xl border border-border p-4 text-left transition-colors",
         accent
-          ? 'bg-accent text-accent-foreground hover:bg-accent/80'
-          : 'bg-card hover:bg-secondary',
+          ? "bg-accent text-accent-foreground hover:bg-accent/80"
+          : "bg-card hover:bg-secondary",
       )}
     >
       <span
         className={cn(
-          'flex size-10 items-center justify-center rounded-xl',
-          accent ? 'bg-primary/20 text-primary' : 'bg-secondary',
+          "flex size-10 items-center justify-center rounded-xl",
+          accent ? "bg-primary/20 text-primary" : "bg-secondary",
         )}
       >
         {icon}
@@ -249,17 +306,19 @@ function ActionTile({
         <span className="text-xs text-muted-foreground">{sub}</span>
       </span>
     </button>
-  )
+  );
 }
 
 function DepositRow({ deposit }: { deposit: Deposit }) {
-  const pending = deposit.status === 'pending'
+  const pending = deposit.status === "pending";
   return (
     <li className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
       <div
         className={cn(
-          'flex size-9 shrink-0 items-center justify-center rounded-lg',
-          pending ? 'bg-secondary text-muted-foreground' : 'bg-accent text-accent-foreground',
+          "flex size-9 shrink-0 items-center justify-center rounded-lg",
+          pending
+            ? "bg-secondary text-muted-foreground"
+            : "bg-accent text-accent-foreground",
         )}
       >
         {pending ? (
@@ -270,7 +329,7 @@ function DepositRow({ deposit }: { deposit: Deposit }) {
       </div>
       <div className="flex-1">
         <p className="text-sm font-medium">
-          Rs {deposit.amount.toLocaleString()}{' '}
+          Rs {deposit.amount.toLocaleString()}{" "}
           <span className="text-muted-foreground">via {deposit.method}</span>
         </p>
         <p className="font-mono text-xs text-muted-foreground">
@@ -279,32 +338,32 @@ function DepositRow({ deposit }: { deposit: Deposit }) {
       </div>
       <span
         className={cn(
-          'rounded-full px-2.5 py-1 text-xs font-medium capitalize',
+          "rounded-full px-2.5 py-1 text-xs font-medium capitalize",
           pending
-            ? 'bg-secondary text-muted-foreground'
-            : 'bg-primary/15 text-primary',
+            ? "bg-secondary text-muted-foreground"
+            : "bg-primary/15 text-primary",
         )}
       >
         {deposit.status}
       </span>
     </li>
-  )
+  );
 }
 
 function AdFreeCountdown({ until }: { until: number }) {
-  const [remaining, setRemaining] = useState(until - Date.now())
+  const [remaining, setRemaining] = useState(until - Date.now());
 
   useEffect(() => {
-    const t = setInterval(() => setRemaining(until - Date.now()), 1000)
-    return () => clearInterval(t)
-  }, [until])
+    const t = setInterval(() => setRemaining(until - Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [until]);
 
-  if (remaining <= 0) return null
-  const totalSeconds = Math.floor(remaining / 1000)
-  const h = Math.floor(totalSeconds / 3600)
-  const m = Math.floor((totalSeconds % 3600) / 60)
-  const s = totalSeconds % 60
-  const pad = (n: number) => n.toString().padStart(2, '0')
+  if (remaining <= 0) return null;
+  const totalSeconds = Math.floor(remaining / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
   return (
     <div className="mt-3 flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-sm">
@@ -314,5 +373,5 @@ function AdFreeCountdown({ until }: { until: number }) {
       </span>
       <span className="text-xs text-muted-foreground">remaining ad-free</span>
     </div>
-  )
+  );
 }
