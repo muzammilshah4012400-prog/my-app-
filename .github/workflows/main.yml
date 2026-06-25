@@ -8,11 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    # یہ لائن GitHub کو بتاتی ہے کہ تمام کمانڈز اینڈرائیڈ فولڈر کے اندر چلانی ہیں
-    defaults:
-      run:
-        working-directory: android
 
     steps:
       - name: Checkout repository
@@ -24,15 +19,27 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # یہ سٹیپ آپ کی زپ فائل کو کھولے گا
+      - name: Unzip Android Folder
+        run: |
+          if [ -f "android.zip" ]; then
+            unzip android.zip
+          else
+            echo "android.zip not found!"
+            exit 1
+          fi
+
+      # اب گٹ ہب کو اینڈرائیڈ فولڈر مل جائے گا
       - name: Grant execute permission for Gradle
-        run: chmod +x gradlew
+        run: chmod +x android/gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: |
+          cd android
+          ./gradlew assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
-          # یہ راستہ چیک کریں: کیا آپ کے 'android' فولڈر کے اندر 'app/build/outputs/apk/debug/' کا راستہ موجود ہے؟
-          path: app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
